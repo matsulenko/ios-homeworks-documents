@@ -17,6 +17,8 @@ protocol FileManagerServiceProtocol {
 
 final class FileManagerService: FileManagerServiceProtocol {
     
+    private let defaults = UserDefaults.standard
+
     func contentsOfDirectory(rootDirectory: String?, directory: String?) throws -> [DirectoryContent] {
         
         var directoryContent: [DirectoryContent] = []
@@ -49,7 +51,13 @@ final class FileManagerService: FileManagerServiceProtocol {
                     }
                 }
             }
-            directoryContent.sort { $0.name.lowercased() < $1.name.lowercased() }
+            if defaults.bool(forKey: "Sort") {
+                if defaults.bool(forKey: "ABC") {
+                    directoryContent.sort { $0.name.lowercased() < $1.name.lowercased() }
+                } else if defaults.bool(forKey: "CBA") {
+                    directoryContent.sort { $1.name.lowercased() < $0.name.lowercased() }
+                }
+            }
             
             return directoryContent
         } catch let error {

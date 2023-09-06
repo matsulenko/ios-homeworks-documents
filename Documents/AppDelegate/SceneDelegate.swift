@@ -13,10 +13,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
-        let window = UIWindow(windowScene: scene)
-        window.rootViewController = UINavigationController(rootViewController: MainViewController())
-        self.window = window
-        window.makeKeyAndVisible()
+        
+        window = UIWindow(windowScene: scene)
+        
+        let fileManagerVC = FileManagerViewController(loggedIn: false)
+        let settingsVC = SettingsViewController()
+        
+        fileManagerVC.tabBarItem = UITabBarItem(title: "Cписок файлов", image: UIImage(systemName: "folder.fill"), tag: 0)
+        settingsVC.tabBarItem = UITabBarItem(title: "Настройки", image: UIImage(systemName: "gear"), tag: 1)
+        let controllers = [fileManagerVC, settingsVC]
+        
+        let tabBarController = UITabBarController()
+        tabBarController.viewControllers = controllers.map {
+            UINavigationController(rootViewController: $0)
+        }
+        tabBarController.selectedIndex = 0
+        tabBarController.tabBar.tintColor = .systemBlue
+        
+        window?.rootViewController = tabBarController
+                
+        window?.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

@@ -8,12 +8,13 @@
 import Foundation
 import UIKit
 
-final class MainViewController: UIViewController {
+final class FileManagerViewController: UIViewController {
 
     private let fileManagerService = FileManagerService()
     private var rootDirectory: String?
     private var directory: String?
     private var data: [DirectoryContent] = []
+    private var loggedIn: Bool
     
     let cellReuseIdentifier = "cell"
     
@@ -24,9 +25,10 @@ final class MainViewController: UIViewController {
         return tableView
     }()
     
-    init(rootDirectory: String? = nil, directory: String? = nil) {
+    init(rootDirectory: String? = nil, directory: String? = nil, loggedIn: Bool = true) {
         self.rootDirectory = rootDirectory
         self.directory = directory
+        self.loggedIn = loggedIn
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -41,6 +43,18 @@ final class MainViewController: UIViewController {
         setupTable()
         setupView()
         setupConstraints()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        let loginVC = LoginViewController()
+        loginVC.modalPresentationStyle = .fullScreen
+        
+        if loggedIn == false {
+            self.navigationController!.present(loginVC, animated: false)
+            self.loggedIn = true
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -80,8 +94,9 @@ final class MainViewController: UIViewController {
     }
     
     private func setupView() {
-        title = directory ?? "Documents"
-        view.backgroundColor = .white
+        title = directory ?? "Cписок файлов"
+        view.backgroundColor = .systemGray6
+        navigationController?.navigationBar.isHidden = false
         navigationController?.navigationBar.prefersLargeTitles = true
         self.navigationItem.rightBarButtonItems = [
             UIBarButtonItem(image: UIImage(systemName: "plus"), style: .plain, target: self, action: #selector(picker)),
@@ -116,7 +131,7 @@ final class MainViewController: UIViewController {
                         }
                     }
                     
-                    let targetViewController = MainViewController(rootDirectory: newRootDirectory, directory: name)
+                    let targetViewController = FileManagerViewController(rootDirectory: newRootDirectory, directory: name)
                     navigationController?.pushViewController(targetViewController, animated: true)
                 }
             }
@@ -174,7 +189,7 @@ final class MainViewController: UIViewController {
     }
 }
 
-extension MainViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+extension FileManagerViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     @objc
     func picker() {
         let picker = UIImagePickerController()
@@ -208,7 +223,7 @@ extension MainViewController: UIImagePickerControllerDelegate & UINavigationCont
     }
 }
 
-extension MainViewController: UITableViewDelegate, UITableViewDataSource {
+extension FileManagerViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         data.count
     }
